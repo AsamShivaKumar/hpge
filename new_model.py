@@ -22,7 +22,7 @@ class HHP(tf.Module):
         self.l2_regular = tf.keras.regularizers.L2(self.norm_rate)
 
         with tf.name_scope('parameters'):
-            init_range_embed = np.sqrt(3.0 / (self.node_size + self.node_dim)) ## Xavier initialization
+            init_range_embed = np.sqrt(3.0 / (self.node_size + self.node_dim))
             self.node_type_embed = tf.keras.layers.Dense(self.node_dim, activation='relu',kernel_regularizer=self.l2_regular,trainable = True,input_shape=(self.num_node_types,self.node_dim))
             self.edge_type_dense = [tf.keras.layers.Dense(self.node_dim, activation='relu',kernel_regularizer=self.l2_regular,input_shape=(self.nbr_size,self.node_dim))  for _ in range(self.num_edge_types)]
             self.hete_att_layer = [tf.keras.layers.Dense(1, activation='relu', kernel_regularizer=self.l2_regular) for _ in range(self.num_edge_types)]

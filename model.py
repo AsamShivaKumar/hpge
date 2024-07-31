@@ -34,9 +34,9 @@ class HHP:
                                                        maxval=init_range_edge_type,
                                                        dtype=tf.float32), trainable=True)
             self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        print("var",tf.compat.v1.trainable_variables())
-        print("global",tf.compat.v1.global_variables())
-        print("vars  .",tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
+        # print("var",tf.compat.v1.trainable_variables())
+        # print("global",tf.compat.v1.global_variables())
+        # print("vars  .",tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
     
     def compute_loss(self,batch_data):
         e_types = batch_data[0]
@@ -58,7 +58,7 @@ class HHP:
                - tf.reduce_mean(tf.compat.v1.log(tf.sigmoid(-lambda_st_neg) + 1e-6)) \
                - tf.reduce_mean(tf.compat.v1.log(tf.sigmoid(-lambda_ts_neg) + 1e-6)) \
                + self.norm_rate * tf.reduce_sum(tf.pow(self.edge_type_embed, 2))
-        print("vars",tf.compat.v1.trainable_variables())
+        # print("vars",tf.compat.v1.trainable_variables())
         return loss
     
     @tf.function

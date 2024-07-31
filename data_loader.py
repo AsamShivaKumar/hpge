@@ -52,6 +52,11 @@ class DataLoader:
                 self.graph[sid].setdefault(e_type,[])
                 self.graph[sid][e_type].append([tid,timestamp])
 
+                # if s_type == t_type:
+                self.graph.setdefault(tid,{})
+                self.graph[tid].setdefault(e_type,[])
+                self.graph[tid][e_type].append([sid,timestamp])
+
         self.min_time = min(self.time_stamps)
         self.timespan = self.max_time - self.min_time
         self.node_size = len(self.nodes_ids.keys())
@@ -92,7 +97,7 @@ class DataLoader:
     def negative_sampling(self, n_type):
         rand_idx = np.random.randint(0, self.node_size_type[n_type], (self.neg_size,))
         sampled_nodes = self.neg_table[n_type][rand_idx]
-        sampled_nodes = ",".join(np.array(sampled_nodes, dtype=np.int).astype(np.str))
+        sampled_nodes = ",".join(np.array(sampled_nodes, dtype=int).astype(str))
         return sampled_nodes
 
     def generate_whole_node_nbrs(self):
@@ -117,6 +122,7 @@ class DataLoader:
 
     def generate_training_dataset(self, filename, num_process=10):
         node_nbrs = self.generate_whole_node_nbrs()
+        print("nbrs", node_nbrs)
         with open(filename, "w") as wf:
 
             # wf.write('str(e_type);str(sid);str(s_type);neg_s_nodes;' + ' ' + 'str(tid);str(t_type);neg_t_nodes') 
@@ -178,7 +184,7 @@ class DataLoader:
 
     def importance_sampler(self, ids, p):
         uniq_ids, ids_index, ids_inverse = np.unique(ids, return_index=True, return_inverse=True)
-        id_matrix = np.eye(len(uniq_ids), dtype=np.int)[ids_inverse]
+        id_matrix = np.eye(len(uniq_ids), dtype=int)[ids_inverse]
         sum_uniq_p = np.dot(p, id_matrix).reshape(-1)  # 1 * d
         sum_uniq_q = sum_uniq_p ** 2
         norm_q = sum_uniq_q / np.sum(sum_uniq_q)
@@ -187,7 +193,7 @@ class DataLoader:
         weight = np.multiply((sum_uniq_p / norm_q)[sp_ids], sp_counts * 1.0 / self.nbr_size)
         norm_weight = weight / weight.sum()
         sp_node_ids = uniq_ids[sp_ids]
-        return [','.join(sp_node_ids.astype(np.str)), ','.join(norm_weight.astype(np.str))]
+        return [','.join(sp_node_ids.astype(str)), ','.join(norm_weight.astype(str))]
     
     # selects nbr_size no. of nbrs from given ids based on time decay values - p
     # p values are in increasing order
@@ -196,7 +202,7 @@ class DataLoader:
         if self.nbr_size == 0:
             return ['', '']
         elif len(ids) < self.nbr_size:
-            return [','.join(ids.astype(np.str)), ','.join(np.array(p).astype(np.str))]
+            return [','.join(ids.astype(str)), ','.join(np.array(p).astype(str))]
         else:
-            return [','.join(ids.astype(np.str)[len(ids) - self.nbr_size:]),
-                    ','.join(np.array(p).astype(np.str)[len(ids) - self.nbr_size:])]
+            return [','.join(ids.astype(str)[len(ids) - self.nbr_size:]),
+                    ','.join(np.array(p).astype(str)[len(ids) - self.nbr_size:])]

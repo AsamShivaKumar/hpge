@@ -3,6 +3,36 @@ import pandas as pd
 import numpy as np
 
 def input_func(filename, num_edge_types, batch_size, neg_size=1, nbr_size=1,col_delim1=";", col_delim2=","):
+    
+    # # filename - file to fetch the data from
+    
+    # def_vals_s = [[-1], [-1]] + [['']] + [['']] * 2 * num_edge_types + [[-1]] * num_edge_types
+    # def_vals_t = [[-1], [-1]] + [['']] + [['']] * 2 * num_edge_types + [[-1]] * num_edge_types
+    # def_vals = [[-1]] + def_vals_s + def_vals_t
+
+    # # def_vals.length - 1+ 2*(3*num_edge_vals+3)
+    # # def_vals = [[-1],[-1],[-1],[''],.........]
+
+    # min_after_dequeue = min_after_times * batch_size
+    # capacity = capacity_times * batch_size
+    
+    # # creates a text queue from all the files given within the array
+    # # shuffle - true : shuffles the files within the input
+    # # num_epochs - reads all the files num_epochs times 
+    # data_queue = tf.train.string_input_producer([filename], num_epochs=num_epochs, shuffle=shuffle)
+    # reader = tf.TextLineReader()
+
+    # # reads 'batch_size' records from data_queue - returns keys,values
+    # _, value = reader.read_up_to(data_queue, batch_size)
+    # value = tf.train.shuffle_batch(
+    #     [value],
+    #     batch_size=batch_size,
+    #     num_threads=24,
+    #     capacity=capacity, # max no of elements in the queue
+    #     enqueue_many=True, # indicates that values has a batch of samples
+    #     min_after_dequeue=min_after_dequeue)
+
+    # infos = tf.decode_csv(value, record_defaults=def_vals, field_delim=col_delim1)
 
     infos = pd.read_csv(filename, delimiter=col_delim1,header=None).to_numpy()
 
@@ -44,42 +74,65 @@ def decode_nbr_infos(batch_size, nbr_size, ids_list, weights_list, flags):
 
 def decode_nbr_ids(str_np_arr, shape, delim=","):
 
-    arr_nums = np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
+    arr_nums = str_np_arr.ravel()
+    # np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
     new_arr = np.zeros(shape, dtype=int)
 
-    for i in range(arr_nums.shape[0]):
-        for j in range(arr_nums[i].shape[0]): new_arr[i,j] = arr_nums[i][j]
+    for i in range(len(arr_nums)):
+      s = arr_nums[i]
+      if not(type(s) == float):
+        vals = np.array(s.split(',')).astype(float)
+        for j in range(len(vals)):
+          new_arr[i,j] = int(vals[j])
+
+    # for i in range(arr_nums.shape[0]):
+    #     for j in range(arr_nums[i].shape[0]): new_arr[i,j] = arr_nums[i][j]
     
     return tf.convert_to_tensor(new_arr)
 
 
 def decode_nbr_mask(str_np_arr, shape, delim=","):
-
-    arr_nums = np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
+    
+    arr_nums = str_np_arr.ravel()
+    # np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
     new_arr = np.zeros(shape, dtype=int)
 
-    for i in range(arr_nums.shape[0]):
-        for j in range(arr_nums[i].shape[0]): new_arr[i,j] = 1
+    for i in range(len(arr_nums)):
+      s = arr_nums[i]
+      if not(type(s) == float):
+        vals = np.array(s.split(',')).astype(float)
+        for j in range(len(vals)):
+          new_arr[i,j] = 1
     
     return tf.convert_to_tensor(new_arr)
 
 
 def decode_nbr_weights(str_np_arr, shape, delim=","):
-    arr_nums = np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(float) for s in str_np_arr.ravel()])
-    new_arr = np.zeros(shape, dtype=float)
+    arr_nums = str_np_arr.ravel()
+    # np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
+    new_arr = np.zeros(shape, dtype=int)
 
-    for i in range(arr_nums.shape[0]):
-        for j in range(arr_nums[i].shape[0]): new_arr[i,j] = 1
+    for i in range(len(arr_nums)):
+      s = arr_nums[i]
+      if not(type(s) == float):
+        vals = np.array(s.split(',')).astype(float)
+        for j in range(len(vals)):
+          new_arr[i,j] = 1
     
     return tf.convert_to_tensor(new_arr)
 
 
 def decode_neg_ids(str_np_arr, neg_size, batch_size, delim=","):
     
-    arr_nums = np.array([ np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
+    arr_nums = str_np_arr.ravel()
+    # np.array([ np.array([]) if type(s) == float else np.array(s.split(',')).astype(int) for s in str_np_arr.ravel()])
     new_arr = np.zeros((batch_size,neg_size), dtype=int)
 
-    for i in range(arr_nums.shape[0]):
-        for j in range(arr_nums[i].shape[0]): new_arr[i,j] = arr_nums[i][j]
+    for i in range(len(arr_nums)):
+      s = arr_nums[i]
+      if not(type(s) == float):
+        vals = np.array(s.split(',')).astype(float)
+        for j in range(len(vals)):
+          new_arr[i,j] = int(vals[j])
     
     return tf.convert_to_tensor(new_arr)
